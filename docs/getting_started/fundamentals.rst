@@ -156,14 +156,14 @@ Decoding
 --------
 #. Temporal Demodulation
 
-   From the transmitted phase shifting sequence `I^*` we compute for each set i the average
-   `\hat{a_i} = \frac{\sum_n I^*_{i,n}}{N_i}`
+   From the transmitted phase shifting sequence `I^*` we compute for each set `i` the average
+   `\hat{a}_i = \frac{\sum_n I^*_{i,n}}{N_i}`
    (the indices `i,n` represent the shifts `n` per set `i`).
-   It should be identical for all sets, so we can average all `\hat{a_i}`
+   It should be identical for all sets, so we can average all `\hat{a}_i`
    or simply average all `I^*`.
    This yields the offset (also called brightness)
 
-   `\hat{a} = \frac{\sum_i \hat{a_i}}{K} = \bar{I^*}`.
+   `\hat{a} = \frac{\sum_i \hat{a}_i}{K} = \bar{I}^*`.
 
    .. todo: \overline not working in Sphinx?
 
@@ -175,14 +175,14 @@ Decoding
 
    From the complex phasor, we compute the modulation (average signal amplitude)
 
-   `\hat{b_i} = |z_i| \frac{2}{N_i}`.
+   `\hat{b}_i = |z_i| \frac{2}{N_i}`.
 
    The factor 2 is because we also have to take the amplitudes of the frequencies with opposite sign into account.
 
    The argument of the complex phasor `z_i` is the circular mean of the irradiance-weighted sample points `c_{i, n}`
    and yields the phase map
 
-   `\hat{\varphi_i} = \arg(z_i) \mod 2 \pi`.
+   `\hat{\varphi}_i = \arg(z_i) \mod 2 \pi`.
 
    The modulo operation maps the result of the arctan2-function from the range `[-\pi, \pi]` to `[0, 2\pi)`.
    Due to the nature of the trigonometric function used, the global phase `\varPhi = 2 \pi \nu_i x - \varphi_0`
@@ -202,12 +202,12 @@ Decoding
        where `\lceil \cdot \rceil` denotes the ceiling function.
        The global phase maps are then estimated to be
 
-       `\hat{\varPhi_i} = \hat{\varphi_i} + k_i 2 \pi`.
+       `\hat{\varPhi}_i = \hat{\varphi}_i + k_i 2 \pi`.
 
    ii  Recover the common independent variable
        by linearly rescaling each global phase map:
 
-       `\hat{x_i} = \frac{\hat{\varPhi_i}}{2 \pi} \lambda_i`
+       `\hat{x}_i = \frac{\hat{\varPhi}_i}{2 \pi} \lambda_i`
 
        with `\lambda_i` being the spatial wavelength of the fringes (in pixels).
 
@@ -216,7 +216,7 @@ Decoding
    iii Fuse the `K` coordinate maps
        by weighted averaging:
 
-       `\hat{x} = \frac{\sum_i w_i \hat{x_i}}{\sum_i w_i}`
+       `\hat{x} = \frac{\sum_i w_i \hat{x}_i}{\sum_i w_i}`
 
        .. _ivw:
 
@@ -224,7 +224,7 @@ Decoding
        i.e. use the precision (the reciprocal of the variance)
        of the coordinate maps as the weights for averaging:
 
-       `w_i = \frac{1}{\sigma_{\hat{x_i}}^2} \propto N_i \hat{b_i}^2 {\nu_i}^2`
+       `w_i = \frac{1}{\sigma_{\hat{x}_i}^2} \propto N_i \hat{b}_i^2 \nu_i^2`
        [7]_.
 
    .. _uwr:
@@ -284,7 +284,7 @@ Now we can state how the transmission impairments are adressed by the phase shif
   .. _eigenfunction:
 
   Sinusoidal fringe patterns have the advantage over binary ones
-  in that they are are Eigenfunctions of the optical system,
+  in that they are Eigenfunctions of the optical system,
   i.e. they have no higher harmonics and therefore remain unchanged even for blurred imaging.
   Although their modulation `b` is attenuated,
   the desired coordinate `x` is determined with sub-pixel precision [11]_.
@@ -293,11 +293,11 @@ The :ref:`decoding <decoding>` yields the following information about the observ
 
 1. The brightness `\hat{a}` is a measure for the reflectance (resp. absorption) of a surface point.
 
-2. The modulation `\hat{b_i}` is a measure for the glossiness (resp. scattering) of a surface point.
+2. The modulation `\hat{b}_i` is a measure for the glossiness (resp. scattering) of a surface point.
    It depends on the used spatial frequency `\nu_i`
    and can be used to determine the local :ref:`modulation transfer function <mtf>` `MTF`.
 
-3. The decoded cordinate `\hat{x}` is contains the information about the test object's shape or slope.
+3. The decoded cordinate `\hat{x}` contains the information about the test object's shape or slope.
 
 .. [1] `Burke et al.,
         "Reverse engineering by fringe projection",

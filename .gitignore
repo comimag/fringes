@@ -114,5 +114,5 @@ fabric.properties
 
 __pycache__/
 /docs/_build/
-/_/
 /dist/
+/_/

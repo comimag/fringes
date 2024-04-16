@@ -28,7 +28,7 @@ Video Shape
 .. ``T`` = ``H`` `\cdot \sum` ``N``.
    If a `multiplexing`_ scheme is activated, ``T`` reduces further.
 
-``L`` is the maximum of ``X`` and ``Y`` and denotes the length (in pixel units) to be ancoded.
+``L`` is the maximum of ``X`` and ``Y`` and denotes the length (in pixel units) to be encoded.
 It can be extended by the factor ``alpha``.
 
 ``C`` depends on the :ref:`coloring <coloring and averaging>` and `multiplexing`_ schemes activated.
@@ -83,7 +83,7 @@ Usually ``f`` = 1 and is essentially only changed if :ref:`frequency division mu
 
 ``reverse`` is a boolean which reverses the direction of the shifts (by multiplying ``f`` with -1).
 
-``o`` denotes the phase offset, which can be used to
+``p0`` denotes the phase offset, which can be used to
 e.g. let the fringe patterns start (at the origin) with a gray value of zero.
 
 Intensity Values
@@ -96,7 +96,7 @@ Possible values are:
 - ``float32``
 - ``float64``
 
-``nbytes`` is the total bytes consumed by fringe pattern sequence.
+``nbytes`` is the number of total bytes consumed by fringe pattern sequence.
 
 .. ``q`` is the quantization step size and equals 1 for ``bool``, `2^r` for r-bit ``unsigned integers``,
    and for ``float`` its corresponding `resolution <https://numpy.org/doc/stable/reference/generated/numpy.finfo.html>`_.
@@ -110,14 +110,14 @@ and for ``float`` its corresponding `resolution <https://numpy.org/doc/stable/re
 ``Imax`` is the maximum gray value and equals 1 for ``float``
 and `2^r - 1` for ``unsigned integers`` with r bits.
 
-``A`` is the offset, also called brightness (of the background).
+``A`` is the offset, also called brightness.
 It is limited by ``Imax``.
 
 ``B`` is the amplitude of the cosinusoidal fringes.
 It is limited by ``Imax``.
 
 ``V`` is the fringe :ref:`visibility <visibility and Exposure>` (also called fringe contrast).
-``V`` = ``A`` / ``B``, where ``V`` and is within the range [0, 1].
+``V`` = ``A`` / ``B`` and is within the range [0, 1].
 
 ``beta`` is the exposure (relative brightness) and is within the range [0, 1].
 
@@ -125,7 +125,8 @@ It is limited by ``Imax``.
 
 Coloring and Averaging
 ----------------------
-The fringe patterns can be colorized by setting the hue ``h`` to any RGB color triple within the interval [0, 255].
+The fringe patterns can be colorized by setting the hue ``h``
+to any sequence of RGB color triple within the interval [0, 255].
 However, black (0, 0, 0) is not allowed.
 ``h`` must be in shape (``H``, 3):
 
@@ -170,7 +171,7 @@ The following multiplexing methods can be activated by setting them to ``True``:
   Here, the directions ``D`` and the sets ``K`` are multiplexed.
   This results in crossed fringe patterns if ``D`` = 2.
   It can only be activated if ``D`` > 1 or ``K`` > 1.
-  If one wants a static pattern, i.e. one that remains congruent when shifted, set ``static`` to ``True``.
+  If you need a static pattern, i.e. one that remains congruent when shifted, set ``static`` to ``True``.
 
 ``SDM`` and ``WDM`` can be used together (reducing ``T`` by a factor of 2 * 3 = 6), ``FDM`` with neighter.
 
@@ -192,7 +193,7 @@ See :ref:`unwrapping <uwr>` for more details.
 During decoding, pixels with less are discarded, which can speed up the computation.
 
 ``umax`` denotes the maximal uncertainty required for the measurement to be valid and is in the interval [0, `L`].
-During decoding, pixels with less are discarded, which can speed up the computation.
+It is used in the :ref:`Optimal Coding strategy <optimal coding strategy>`.
 
 ``verbose`` can be set to ``True`` to also receive from decoding
 the wrapped phase maps `\varphi_i`, the fringe orders `k_i`, the residuals `r`, the uncertainty `u`,
@@ -209,10 +210,13 @@ The coding is only unique within the interval [0, ``UMR``); after that it repeat
 
 The ``UMR`` is derived from ``l`` and ``v``:
 
-- If ``l`` `\in \mathbb{N}`, ``UMR`` = `lcm(` ``l`` `)`, with `lcm` being the least common multiple.
-- Else, if ``v`` `\in \mathbb{N}`, ``UMR`` = ``L`` / `gcd(` ``v`` `)`, with `gcd` being the greatest common divisor.
-- Else, if ``v`` `\lor` ``l`` `\in \mathbb{Q}` , `lcm` resp. `gcd` are extended to rational numbers.
-- Else, if ``v`` `\land` ``l`` `\in \mathbb{R} \setminus \mathbb{Q}` , ``UMR`` = `prod(` ``l`` `)`, with `prod` being the product operator.
+- If ``l`` `\in \mathbb{N}`, ``UMR`` = `\mathrm{lcm}(` ``l`` `)`,
+  with `\mathrm{lcm}` being the least common multiple.
+- Else, if ``v`` `\in \mathbb{N}`, ``UMR`` = ``L`` / `\mathrm{gcd}(` ``v`` `)`,
+  with `\mathrm{gcd}` being the greatest common divisor.
+- Else, if ``v`` `\lor` ``l`` `\in \mathbb{Q}` , `\mathrm{lcm}` resp. `\mathrm{gcd}` are extended to rational numbers.
+- Else, if ``v`` `\land` ``l`` `\in \mathbb{R} \setminus \mathbb{Q}` , ``UMR`` = `\mathrm{prod}(` ``l`` `)`,
+  with `\mathrm{prod}` being the product operator.
 
 ``eta`` denotes the coding efficiency ``L`` / ``UMR``.
 It makes no sense to choose ``UMR`` much larger than ``L``,

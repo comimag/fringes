@@ -1792,7 +1792,7 @@ class Fringes:
                 xi = np.concatenate((np.zeros_like(xi), xi), axis=0)
         elif self.indexing == "ij":
             xi = xi[::-1]  # returns a view
-            # B does not need to be changed because there is only one fused value for each (x, y)-coordinate
+            # B does not need to be changed because there is only one mean value for each (x, y)-coordinate
             # u does not need to be changed because there is only one value for each (x, y)-coordinate
         valid = (xi[0] <= self.X) * (xi[1] <= self.Y)
 
@@ -1802,7 +1802,6 @@ class Fringes:
             B = B.reshape((-1, Y, X, C))
             # B = np.max(B, axis=0)
             B = np.mean(B, axis=0)
-            # todo: remap for each B?
 
         if mode == "fast":
             if not isinstance(B, np.ndarray):
@@ -1816,40 +1815,40 @@ class Fringes:
                 u = u.reshape((-1, Y, X, C))
                 u = np.maximum(u, self.u)
 
+            # initialize
             src = np.zeros((self.Y, self.X, C), np.float32)
 
+            # remap
             # xi = xi[::-1]  # returns a view
             # idx = np.rint(xi).astype(int, copy=False)
             # for c in range(C):  # looping through color channels reduces memory consumption
             #     src[idx[1].ravel(), idx[0].ravel(), c] += B[..., c].ravel()  # ravel() returns a view
             # todo: advanced indexing with nan?
             B[~valid] = 0
-            src = _remap(src, xi, B)  # todo: if u is array -> also increment region around rint pixel
+            src = _remap(src, xi, B)
 
-            # blurring due to uncertainty and PSF
+            # morphology
+            dr = dx / np.sqrt(np.pi)  # mapping radius of sqare (=dx/2) to radius of circle (dr) with same area
+            a = 3  # number of standard deviations
             u = self.u if self.indexing == "ij" else self.u[::-1]  # todo: D = 1, i.e. shape of sigma equal to axes?
-            sigma = np.sqrt(u**2 + self.PSF**2)
-            src = sp.ndimage.gaussian_filter(src, sigma, mode="nearest", axes=(0, 1))
-
-            # blurring due to pixel size
-            dx = 3
-            dx_ = int(dx + 0.5)
-            if dx > 1:
-                src = sp.ndimage.uniform_filter(src, size=dx_, mode="reflect", axes=(0, 1))
+            R = np.ceil(dr + a * np.sqrt(u**2 + self.PSF**2)).astype(int)
+            if any(r > 1 for r in R):
+                kernel = np.ones((R[0], R[-1]), np.uint8)  # ensures kernel is 2D even if D == 1
+                src = sp.ndimage.grey_dilation(src, structure=kernel)
         else:
             xi = xi[:, valid].reshape(2, -1, C).swapaxes(0, 1)  # n data points of dimension m
             if B is not None:
                 B = B[valid].reshape(-1, C)  # n data points of dimension m
 
-            # todo: use U if given as an array (but how?)
-
+            dr = dx / np.sqrt(np.pi)  # mapping radius of sqare (=dx/2) to radius of circle (dr) with same area
+            a = 3  # number of standard deviations
+            # todo: use u if given as an array (but how?)
             u = np.prod(self.u, axis=0) ** (
                 1 / self.D
             )  # geometric mean averages the semi-axes of the uncertainty ellipses
-            sigma = np.sqrt(u**2 + self.PSF**2)
-            dr = dx / np.sqrt(np.pi)  # mapping radius of sqare (=dx/2) to radius of circle (dr) with same area
-            a = 3  # number of standard deviations
-            R = dr + a * sigma
+            R = dr + a * np.sqrt(u**2 + self.PSF**2)
+
+            # todo: query tree
 
             src = np.empty((self.Y, self.X, C), np.float32)
             for c in range(C):

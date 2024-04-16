@@ -11,23 +11,23 @@ from .util import vshape, curvature, height
 
 logger = logging.getLogger(__name__)
 
-# use verion string in pyproject.toml as the single source of truth
-try:
-    # in order not to confuse an installed version of a package with a local one,
-    # first try the local one (not being installed)
-    data = toml.load(os.path.join(os.path.dirname(__file__), "..", "pyproject.toml"))
-    __version__ = data["project"]["version"]  # Python Packaging User Guide expects version here
-except KeyError:
-    __version__ = data["tool"]["poetry"]["version"]  # Poetry expects version here
-except FileNotFoundError:
-    __version__ = importlib.metadata.version("fringes")  # installed version
-
-flist = glob.glob(os.path.join(os.path.dirname(__file__), "__pycache__", "decoder*decode*.nbc"))
-if not flist or os.path.getmtime(__file__) > max(os.path.getmtime(file) for file in flist):
+_flist = glob.glob(os.path.join(os.path.dirname(__file__), "__pycache__", "decoder*decode*.nbc"))
+if not _flist or os.path.getmtime(__file__) > max(os.path.getmtime(file) for file in _flist):
     logging.warning(
         "The 'decode()'-function has not been compiled yet. "
         "This will take a few minutes (the time depends on your CPU and energy settings)."
     )
+
+# use verion string in pyproject.toml as the single source of truth
+try:
+    # in order not to confuse an installed version of a package with a local one,
+    # first try the local one (not being installed)
+    _meta = toml.load(os.path.join(os.path.dirname(__file__), "..", "pyproject.toml"))
+    __version__ = _meta["project"]["version"]  # Python Packaging User Guide expects version here
+except KeyError:
+    __version__ = _meta["tool"]["poetry"]["version"]  # Poetry expects version here
+except FileNotFoundError:
+    __version__ = importlib.metadata.version("fringes")  # installed version
 
 
 def documentation():

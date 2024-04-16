@@ -100,7 +100,7 @@ This DOI represents all versions, i.e. the concept of this software package,
 and will always resolve to the latest one.
 
 If you want to cite a specific version,
-please choose the respective DOI from [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10936353) yourself.
+please choose the respective DOI from [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10936353).
 
 ## Support
 I was looking for a user-friendly tool to configure,

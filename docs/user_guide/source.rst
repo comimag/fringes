@@ -121,7 +121,7 @@ to each screen pixel `\mathbf{x}_\mathrm{s}` as follows:
    where `d` is within the radius `R_{\mathbf{x}_\mathrm{c}}` is denoted by
 
    `\mathcal{C}^\mathrm{R_{\mathbf{x}_\mathrm{c}}}(\mathbf{x}_\mathrm{c})
-   = \{ \mathbf{x}_\mathrm{c} \in \mathcal{C} \mid 0 < d({\mathbf{x}_\mathrm{s}}, \mathbf{\hat{x}}_\mathrm{s}) \leq R_{\mathbf{x}_\mathrm{c}} \}`;
+   = \{ \mathbf{x}_\mathrm{c} \in \mathcal{C} \mid 0 < d({\mathbf{x}_\mathrm{s}}, \mathbf{\hat{x}}_\mathrm{s}) \leq R_{\mathbf{x}_\mathrm{c}} \}`.
 
 .. the distance `R_{\mathbf{x}_\mathrm{c}}` corresponds to the radius
    of the camera sight ray's :ref:`point spread function <psf>`.
