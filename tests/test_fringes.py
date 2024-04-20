@@ -18,10 +18,11 @@ from fringes import Fringes, curvature, height, __version__
 #     f = Fringes(Y=100)
 #     f.verbose = True
 #
-#     I = f.encode()
 #     flist = glob.glob(os.path.join(os.path.dirname(__file__), "..", "fringes", "__pycache__", "decoder*decode*.nbc"))
 #     for file in flist:
 #         os.remove(file)
+#
+#     I = f.encode()
 #
 #     t0 = time.perf_counter()
 #     dec = f.decode(I)
@@ -262,9 +263,7 @@ def test_dtypes():
 def test_decode():
     f = Fringes(Y=100)
 
-    I = f.encode()
-
-    dec = f.decode(I)
+    dec = f.decode(f.encode())
     assert isinstance(dec, tuple) and hasattr(dec, "_fields"), "Return value isn't a 'namedtuple'."
     assert all(isinstance(item, np.ndarray) for item in dec), "Return values aren't 'Numpy arrays'."
     assert len(dec) == 3, f"Decode returned {len(dec)} instead of 3 values."
@@ -354,7 +353,7 @@ def test_decolorize():  # todo: decolorizing
         "Registration is off more than 0.1."
     I = I.mean(axis=-1)
     dec = f.decode(I)
-    assert dec.registration.shape[-1] == 3, "Registration does not have't 1 color channel."
+    assert dec.registration.shape[-1] == 3, "Registration does not have 1 color channel."
     assert np.allclose(dec.registration, f.coordinates()[:, :, :, None], rtol=0, atol=0.1), \
         "Registration is off more than 0.1."
 
@@ -396,8 +395,7 @@ def test_alpha():
 #     for g in f._grids:
 #         f.grid = g
 #
-#         I = f.encode()
-#         dec = f.decode(I)
+#         dec = f.decode(f.encode())
 #
 #         d = dec.registration - f.coordinates()[:, :, :, None]
 #         assert np.allclose(d, 0, rtol=0, atol=0.1), f"Registration is off more than 0.1 with grid == {f.grid}."
@@ -427,8 +425,8 @@ def test_scaling():
     f.K = 1
     f.v = 1
     f.N = 13
-    I = f.encode()
-    dec = f.decode(I)
+
+    dec = f.decode(f.encode())
     assert np.allclose(dec.registration[:, 1:, 1:, :], f.coordinates()[:, 1:, 1:, None], rtol=0, atol=1),\
         "Registration is off more than 1."  # todo: 0.1, index 0
 
@@ -442,10 +440,15 @@ def test_unwrapping():
     # todo: verbose -> reliability
 
     dec = f.decode(f.encode())
+
     for d in range(f.D):
         grad = np.gradient(dec.registration[d, :, :, 0], axis=0) + np.gradient(dec.registration[d, :, :, 0], axis=1)
         assert np.allclose(grad, 1, rtol=0, atol=0.1), \
             f"Gradient of unwrapped phase map isn't close to 1 at direction {d}."
+
+    # this is not necessary to test for
+    assert np.allclose(dec.registration, f.coordinates()[:, :, :, None], rtol=0, atol=1), \
+        "Registration is off more than 0.1."
 
 
 # def test_unwrapping_class_method():
@@ -546,8 +549,7 @@ def test_WDM():
 #     f.SDM = True
 #     # f.alpha = (f.R.min() + 2) / f.R.min()  # todo: alpha
 #
-#     I = f.encode()
-#     dec = f.decode(I)
+#     dec = f.decode(f.encode())
 #
 #     for d in range(f.D):
 #         grad = np.gradient(dec.registration, axis=1 - d)
@@ -566,8 +568,7 @@ def test_WDM():
 #     f.WDM = True
 #     # f.alpha = (f.R.min() + 2) / f.R.min()  # todo: alpha
 #
-#     I = f.encode()
-#     dec = f.decode(I)
+#     dec = f.decode(f.encode())
 #
 #     for d in range(f.D):
 #         grad = np.gradient(dec.registration, axis=1 - d)

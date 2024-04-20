@@ -425,7 +425,7 @@ class Fringes:
         # I = I.reshape((T * Y, X, C))  # concatenate
         I = I.reshape((-1, self.T, X, C)).swapaxes(0, 1)
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I
 
@@ -457,7 +457,7 @@ class Fringes:
         if self.grid in ["polar", "log-polar"]:
             xi *= self.L
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return xi
 
@@ -559,7 +559,7 @@ class Fringes:
                         idx += 1
                     frame += 1
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I.reshape(-1, Y, X, 1)
 
@@ -761,7 +761,7 @@ class Fringes:
                 self.verbose or verbose,
             )
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return bri, mod, phi, reg, res
 
@@ -832,7 +832,7 @@ class Fringes:
                     np.rint(I, out=I)
                 I = I.astype(self.dtype, copy=False)  # returns a view
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I
 
@@ -913,7 +913,7 @@ class Fringes:
             assert len(np.unique(self.N)) == 1
             I = np.tile(I, (self.D * self.K, 1, 1, 1))
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I
 
@@ -988,7 +988,7 @@ class Fringes:
         #                 J[i, ..., c] = I[i, ..., cj] * (self.h[h, c] / 255)
         #         i += 1
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return J
 
@@ -1068,7 +1068,7 @@ class Fringes:
             I = np.sum(I * w[:, None, None, None, :], axis=0, dtype=dtype)
             # todo: numpy.tensordot ?
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I
 
@@ -1220,7 +1220,7 @@ class Fringes:
         if self.H > 1 or np.any(self.h != 255):  # can be used for extended averaging
             I = self._colorize(I, frames)
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return (
             self._simulate(I, PSF=0, system_gain=self.gain, dark_current=self.y0 / self.gain, dark_noise=self.dark)
@@ -1430,7 +1430,7 @@ class Fringes:
         else:
             dec = namedtuple("decoded", "brightness modulation registration")(bri, mod, reg)
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return dec
 
@@ -1618,7 +1618,7 @@ class Fringes:
 
         reg *= self._l[:, 0, None, None, None] / (2 * np.pi)
 
-        logger.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return reg  # todo: res if verbose
 
@@ -1886,9 +1886,9 @@ class Fringes:
         if mx > 0 and mx != 1:
             src /= mx
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
-        return src
+        return src.reshape(-1, Y, X, C)
 
     def brightfield_inverse(self, src: np.ndarray, t: float = 0.1, k: int = 3) -> np.ndarray:
         """Inverse bright-field
@@ -2081,7 +2081,7 @@ class Fringes:
         # quantization noise is added by converting to integer
         I = I.astype(self.dtype, copy=False)
 
-        logger.info(f"{1000 * (time.perf_counter() - t0)}ms")
+        logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
         return I
 
@@ -2743,32 +2743,40 @@ class Fringes:
         Kmax = (self._Nmax - 1) / 2 / self.D if self.FDM else self._Kmax  # todo: check if necessary
         _K = int(min(max(1, K), Kmax))
 
-        if self._K > _K:  # remove elements
-            self._K = _K
-            logger.debug(f"{self._K = }")
+        if self._K != _K:
+            # V = self.V  # try to keep visibility
 
-            self.N = self._N[:, : self.K]
-            self.v = self._v[:, : self.K]
-            self.f = self._f[:, : self.K]
+            if self._K > _K:  # remove elements
+                self._K = _K
+                logger.debug(f"{self._K = }")
 
-            if self._D == self._K == 1:
-                self.FDM = False
-        elif self._K < _K:  # add elements
-            self._K = _K
-            logger.debug(f"{self._K = }")
+                self.N = self._N[:, : self.K]
+                self.v = self._v[:, : self.K]
+                self.f = self._f[:, : self.K]
 
-            self.N = np.append(
-                self._N, np.tile(self._N[0, 0], (self.D, _K - self._N.shape[1])), axis=1
-            )  # don't append N from defaults, this might be in conflict with WDM!
-            v = self.L ** (1 / np.arange(self._v.shape[1] + 1, _K + 1))
-            self.v = np.append(self._v, np.tile(v, (self.D, 1)), axis=1)
-            self.f = np.append(
-                self._f,
-                np.tile(self.defaults["f"][0, 0], (self.D, _K - self._f.shape[1])),
-                axis=1,
-            )
+                if self._D == self._K == 1:
+                    self.FDM = False
 
-            self.B = self.B
+                # todo: keep modu as high as possible
+                if self.FDM:
+                    ...
+            elif self._K < _K:  # add elements
+                self._K = _K
+                logger.debug(f"{self._K = }")
+
+                self.N = np.append(
+                    self._N, np.tile(self._N[0, 0], (self.D, _K - self._N.shape[1])), axis=1
+                )  # don't append N from defaults, this might be in conflict with WDM!
+                v = self.L ** (1 / np.arange(self._v.shape[1] + 1, _K + 1))
+                self.v = np.append(self._v, np.tile(v, (self.D, 1)), axis=1)
+                self.f = np.append(
+                    self._f,
+                    np.tile(self.defaults["f"][0, 0], (self.D, _K - self._f.shape[1])),
+                    axis=1,
+                )
+
+            # self.V = V  # try to keep visibility
+            self.V = 1  # maximize visibility
 
     @property
     def _Nmin(self) -> int:
@@ -3306,6 +3314,11 @@ class Fringes:
         """Shape of fringe pattern sequence in video shape (frames, height, with, color channels)."""
         return self.T, self.Y, self.X, self.C
 
+    # @property
+    # def ndim(self) -> int:
+    #     """Number of dimensions."""
+    #     return len(self.shape)
+
     @property
     def size(self) -> np.uint64:
         """Number of pixels of fringe pattern sequence (frames * height * width * color channels)."""
@@ -3628,9 +3641,7 @@ class Fringes:
         logger.debug(f"self.UMR = {str(self._UMR)}")
 
         if self._ambiguous:
-            logger.warning(
-                "UMR < R. Unwrapping will not be spatially independent and only yield a relative phase map."
-            )
+            logger.warning("UMR < R. Unwrapping will not be spatially independent and only yield a relative phase map.")
 
         return self._UMR
 
@@ -3786,3 +3797,28 @@ class Fringes:
     # __doc__ += f"\nencode\n    {encode.__doc__.splitlines()[0]}"
     # __doc__ += f"\ndecode\n    {decode.__doc__.splitlines()[0]}"
     del __k, __v
+
+
+if __name__ == "__main__":
+    import fringes as frng  # import the fringes package
+
+    # configure logging
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s.%(funcName)s(): %(message)s")
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger = logging.getLogger("fringes")
+    logger.setLevel("INFO")
+
+    f = frng.Fringes()      # instantiate the Fringes class
+
+    f.X = 1920              # set width of the fringe patterns
+    f.Y = 1080              # set height of the fringe patterns
+    f.K = 2                 # set number of sets
+    f.N = 4                 # set number of shifts
+    f.v = [9, 10]           # set spatial frequencies
+
+    f.T                     # get number of frames
+
+    I = f.encode()          # encode fringe patterns
+
+    A, B, X = f.decode(I)   # decode fringe patterns

@@ -191,7 +191,7 @@ def curvature(s: np.ndarray, calibrated: bool = False, normalize: bool = True) -
     if map:
         c = np.arctan(c) * 2 / np.pi  # scale [-inf, inf] to [-1, 1]
 
-    logging.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+    logging.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
     return c.reshape(-1, Y, X, C)
 
@@ -239,9 +239,9 @@ def height(curv: np.ndarray, iterations: int = 3) -> np.ndarray:  # todo: test
     # todo: residuals
     # filter2(kernel_laplace, z) - cature;
 
-    logging.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+    logging.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
-    return z
+    return z.reshape(-1, Y, X, C)
 
 
 def bilateral(I: np.ndarray, k: int = 7) -> np.ndarray:  # todo: test
@@ -280,7 +280,7 @@ def bilateral(I: np.ndarray, k: int = 7) -> np.ndarray:  # todo: test
                 out[t, :, :, c] = ski.restoration.denoise_bilateral(I[t, :, :, c], win_size=k, sigma_spatial=1)
                 # out[t, :, :, c] = cv2.bilateralFilter(I[t], d=k, sigmaColor=np.std(I[t, :, :, c]), sigmaSpace=1)
 
-    logging.debug(f"{1000 * (time.perf_counter() - t0)}ms")
+    logging.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
     return out
 

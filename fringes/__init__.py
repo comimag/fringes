@@ -12,7 +12,9 @@ from .util import vshape, curvature, height
 logger = logging.getLogger(__name__)
 
 _flist = glob.glob(os.path.join(os.path.dirname(__file__), "__pycache__", "decoder*decode*.nbc"))
-if not _flist or os.path.getmtime(__file__) > max(os.path.getmtime(file) for file in _flist):
+if not _flist or os.path.getmtime(os.path.join(os.path.dirname(__file__), "decoder.py")) > max(
+    os.path.getmtime(file) for file in _flist
+):
     logging.warning(
         "The 'decode()'-function has not been compiled yet. "
         "This will take a few minutes (the time depends on your CPU and energy settings)."
