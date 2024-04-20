@@ -32,7 +32,7 @@ from fringes import Fringes, curvature, height, __version__
 
 
 # def test_speed():  # todo: test_decoding_speed
-#     f = Fringes()  # todo: X=1920, Y=1080
+#     f = Fringes(X=1920, Y=1080)
 #     f.v = [9, 10]
 #
 #     I = f.encode()
