@@ -191,7 +191,7 @@ def curvature(s: np.ndarray, calibrated: bool = False, normalize: bool = True) -
     if map:
         c = np.arctan(c) * 2 / np.pi  # scale [-inf, inf] to [-1, 1]
 
-    logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
+    logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
     return c.reshape(-1, Y, X, C)
 
@@ -239,7 +239,7 @@ def height(curv: np.ndarray, iterations: int = 3) -> np.ndarray:  # todo: test
     # todo: residuals
     # filter2(kernel_laplace, z) - cature;
 
-    logger.debug(f"{int(1000 * (time.perf_counter() - t0))}ms")
+    logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")
 
     return z.reshape(-1, Y, X, C)
 
