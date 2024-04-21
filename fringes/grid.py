@@ -2,8 +2,6 @@ import logging
 
 import numpy as np
 
-# todo: import numba as nb
-
 logger = logging.getLogger(__name__)
 
 

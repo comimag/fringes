@@ -188,7 +188,7 @@ def curvature(s: np.ndarray, calibrated: bool = False, normalize: bool = True) -
         # c -= np.mean(c, axis=(0, 1))
         c -= np.median(c, axis=(0, 1))  # Median is a robust estimator for the mean.
 
-    if map:
+    if normalize:
         c = np.arctan(c) * 2 / np.pi  # scale [-inf, inf] to [-1, 1]
 
     logger.info(f"{int(1000 * (time.perf_counter() - t0))}ms")

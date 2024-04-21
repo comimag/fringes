@@ -20,7 +20,7 @@ if not _flist or os.path.getmtime(os.path.join(os.path.dirname(__file__), "decod
         "This will take a few minutes (the time depends on your CPU and energy settings)."
     )
 
-# use verion string in pyproject.toml as the single source of truth
+# use version string in pyproject.toml as the single source of truth
 try:
     # in order not to confuse an installed version of a package with a local one,
     # first try the local one (not being installed)
