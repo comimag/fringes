@@ -97,7 +97,7 @@ class Fringes:
     # default values are defined here; take care to only use immutable types!
     def __init__(
         self,
-        *args,  # bundels all args, what follows are only kwargs
+        *args,  # bundles all args, what follows are only kwargs
         Y: int = 1200,
         X: int = 1920,
         H: int = 1,  # inferred from h
@@ -227,7 +227,7 @@ class Fringes:
 
         if not os.path.isfile(fname):
             logger.error(f"File '{fname}' does not exist.")
-            return
+            return {}
 
         with open(fname, "r") as f:
             ext = os.path.splitext(fname)[-1]
@@ -576,7 +576,7 @@ class Fringes:
 
         verbose : bool, optional
             If this or the argument `verbose` of the Fringes instance is set to True,
-            additional infomation is computed and retuned.
+            additional information is computed and returned.
             This includes: phase maps, residuals, fringe orders, visibility and relative exposure.
 
         func : str, optional
